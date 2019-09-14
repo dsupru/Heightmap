@@ -5,6 +5,7 @@
 */
 
 #include <Project1.hpp>
+#include <Translations.hpp>
 
 // globals 
 	// settings
@@ -22,6 +23,7 @@ float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+inline void rotateCubes(Shader &ourShader, glm::vec3 cubePositions[], float rotateByDeltaTime);
 
 std::string preamble =
 "Project 1 code \n\n"
@@ -244,22 +246,7 @@ int main(int argc, char **argv)
 		
 		// render boxes
 		glBindVertexArray(VAO);
-		for (unsigned int i = 0; i < 10; i++)
-		{
-			// calculate the model matrix for each object and pass it to shader before drawing
-			glm::mat4 model;
-			// Translate the model to the cube starting position
-			model = glm::translate(model, cubePositions[i]);
-			// Rotate the cube by an angle
-			float angle = 20.0f * i;
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
-
-			// Set model in shader
-			ourShader.setMat4("model", model);
-
-			// Draw the box with triangles
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+      rotateCubes(ourShader, cubePositions, currentFrame);
 
 		// Bind new textures to boh texture positions (do both since it has 2 textures in the vertex shader)
 		glActiveTexture(GL_TEXTURE0);
@@ -300,6 +287,23 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+inline void rotateCubes(Shader &ourShader, glm::vec3 cubePositions[], float rotateByDeltaTime) {
+	for (unsigned int i = 0; i < 10; i++) {
+		// calculate the model matrix for each object and pass it to shader before drawing
+		glm::mat4 model;
+		// Translate the model to the cube starting position
+		model = glm::translate(model, cubePositions[i]);
+		// Rotate the cube by an angle
+		float angle = transformationRate::rotation * rotateByDeltaTime;
+		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
+
+		// Set model in shader
+		ourShader.setMat4("model", model);
+
+		// Draw the box with triangles
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+   }
+}
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -320,6 +324,10 @@ void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, in
          break;
          case GLFW_KEY_D:
             camera.ProcessKeyboard(RIGHT, deltaTime);
+         break;
+         // inputs to modify objects
+         case GLFW_KEY_U:
+            transformationRate::increaseRotationRate();
          break;
       }
    } else if (action == GLFW_RELEASE) {
