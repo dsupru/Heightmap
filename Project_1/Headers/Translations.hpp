@@ -1,15 +1,37 @@
+enum class Direction {
+   X,
+   Y,
+   Z
+};
 namespace transformationRate {
-   static float rotation = 1.0f;
-   static float translation = 1.0f;
-   static float scaling = 1.0f;
+   static glm::vec3 rotationAngle(0.0f, 0.0f, 0.0f);
+   static glm::vec3 translationVec(0.0f, 0.0f, 0.0f);
+   static glm::vec3 scalingVec(0.0f, 0.0f, 0.0f);
 
-   static void increaseRotationRate() {
-      (rotation < 50.0f) ? rotation += 2.0f : rotation;
+   static void increaseRotationRate(Direction direction) {
+      switch (direction){
+         case (Direction::X):
+            rotationAngle.x += 1.1f;
+         break;
+         case (Direction::Y):
+            rotationAngle.y += 1.1f;
+         break;
+         case (Direction::Z):
+            rotationAngle.z += 1.1f;
+         break;
+      }
    }
-   static void increaseTranslationRate() {
-      (translation < 100.0f) ? translation += 10.0f : translation;
-   }
-   static void increaseScalingRate() {
-      (scaling < 10.0f) ? scaling += 1.5f : scaling;
+   static void decreaseRotationRate(Direction direction) {
+      switch (direction){
+         case (Direction::X):
+            rotationAngle.x -= 1.1f;
+         break;
+         case (Direction::Y):
+            rotationAngle.y -= 1.1f;
+         break;
+         case (Direction::Z):
+            rotationAngle.z -= 1.1f;
+         break;
+      }
    }
 }

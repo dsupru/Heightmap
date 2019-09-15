@@ -5,6 +5,7 @@
 */
 
 #include <Project1.hpp>
+#include <Translations.hpp>
 
 // globals 
 	// settings
@@ -199,8 +200,9 @@ int main(int argc, char **argv)
 	// init heightmap (defined in heightmap.hpp)
 	Heightmap heightmap("../Project_1/Media/heightmaps/hflab4.jpg");
 	
-	
-
+	float angle_x = 0;
+   float angle_y = 0;
+   float angle_z = 0;
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -250,8 +252,12 @@ int main(int argc, char **argv)
 			// Translate the model to the cube starting position
 			model = glm::translate(model, cubePositions[i]);
 			// Rotate the cube by an angle
-			float angle = 20.0f * i;
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
+			angle_x += (i+1) * deltaTime * transformationRate::rotationAngle.x;
+			angle_y += (i+1) * deltaTime * transformationRate::rotationAngle.y;
+			angle_z += (i+1) * deltaTime * transformationRate::rotationAngle.z;
+			model = glm::rotate(model, glm::radians(angle_x), glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, glm::radians(angle_y), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::rotate(model, glm::radians(angle_z), glm::vec3(0.0f, 0.0f, 1.0f));
 
 			// Set model in shader
 			ourShader.setMat4("model", model);
@@ -311,6 +317,21 @@ void processInput(GLFWwindow *window)
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
+
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+      transformationRate::increaseRotationRate(Direction::X);
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+      transformationRate::decreaseRotationRate(Direction::X);
+
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+      transformationRate::increaseRotationRate(Direction::Y);
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+      transformationRate::decreaseRotationRate(Direction::Y);
+
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+      transformationRate::increaseRotationRate(Direction::Z);
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+      transformationRate::decreaseRotationRate(Direction::Z);
 
 	// Add other key operations here.  
 }
