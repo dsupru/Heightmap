@@ -27,12 +27,26 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+using std::vector;
 
 unsigned int  loadTexture(char const * path);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+
+namespace skybox {
+   static const vector<std::string> faces = {
+      "../Project_1/Media/skybox/right.jpg",
+      "../Project_1/Media/skybox/left.jpg",
+      "../Project_1/Media/skybox/top.jpg",
+      "../Project_1/Media/skybox/bottom.jpg",
+      "../Project_1/Media/skybox/front.jpg",
+      "../Project_1/Media/skybox/back.jpg"
+   };
+
+   static inline unsigned int load(vector<std::string> &faces);
+}
 
 
 
