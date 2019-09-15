@@ -4,6 +4,10 @@ enum class Direction {
    Z
 };
 namespace transformationRate {
+   const float ROTATION_RATE = 1.1f;
+   const float SCALING_RATE = 0.1f;
+   const float TRANSLATION_RATE = 0.3f;
+
    static glm::vec3 rotationAngle(0.0f, 0.0f, 0.0f);
    static glm::vec3 translationVec(0.0f, 0.0f, 0.0f);
    static glm::vec3 scalingVec(1.0f, 1.0f, 1.0f);
@@ -11,26 +15,26 @@ namespace transformationRate {
    static void increaseRotationRate(Direction direction) {
       switch (direction){
          case (Direction::X):
-            rotationAngle.x += 1.1f;
+            rotationAngle.x += ROTATION_RATE;
          break;
          case (Direction::Y):
-            rotationAngle.y += 1.1f;
+            rotationAngle.y += ROTATION_RATE;
          break;
          case (Direction::Z):
-            rotationAngle.z += 1.1f;
+            rotationAngle.z += ROTATION_RATE;
          break;
       }
    }
    static void decreaseRotationRate(Direction direction) {
       switch (direction){
          case (Direction::X):
-            rotationAngle.x -= 1.1f;
+            rotationAngle.x -= ROTATION_RATE;
          break;
          case (Direction::Y):
-            rotationAngle.y -= 1.1f;
+            rotationAngle.y -= ROTATION_RATE;
          break;
          case (Direction::Z):
-            rotationAngle.z -= 1.1f;
+            rotationAngle.z -= ROTATION_RATE;
          break;
       }
    }
@@ -38,26 +42,26 @@ namespace transformationRate {
    static void increaseScaling(Direction direction) {
       switch (direction){
          case (Direction::X):
-            scalingVec.x += 0.1f;
+            scalingVec.x += SCALING_RATE;
          break;
          case (Direction::Y):
-            scalingVec.y += 0.1f;
+            scalingVec.y += SCALING_RATE;
          break;
          case (Direction::Z):
-            scalingVec.z += 0.1f;
+            scalingVec.z += SCALING_RATE;
          break;
       }
    }
    static void decreaseScaling(Direction direction) {
       switch (direction){
          case (Direction::X):
-            scalingVec.x -= 0.1f;
+            scalingVec.x -= SCALING_RATE;
          break;
          case (Direction::Y):
-            scalingVec.y -= 0.1f;
+            scalingVec.y -= SCALING_RATE;
          break;
          case (Direction::Z):
-            scalingVec.z -= 0.1f;
+            scalingVec.z -= SCALING_RATE;
          break;
       }
    }
@@ -65,26 +69,26 @@ namespace transformationRate {
    static void increaseTranslation(Direction direction) {
       switch (direction){
          case (Direction::X):
-            translationVec.x += 1.1f;
+            translationVec.x += TRANSLATION_RATE;
          break;
          case (Direction::Y):
-            translationVec.y += 1.1f;
+            translationVec.y += TRANSLATION_RATE;
          break;
          case (Direction::Z):
-            translationVec.z += 1.1f;
+            translationVec.z += TRANSLATION_RATE;
          break;
       }
    }
    static void decreaseTranslation(Direction direction) {
       switch (direction){
          case (Direction::X):
-            translationVec.x -= 1.1f;
+            translationVec.x -= TRANSLATION_RATE;
          break;
          case (Direction::Y):
-            translationVec.y -= 1.1f;
+            translationVec.y -= TRANSLATION_RATE;
          break;
          case (Direction::Z):
-            translationVec.z -= 1.1f;
+            translationVec.z -= TRANSLATION_RATE;
          break;
       }
    }
