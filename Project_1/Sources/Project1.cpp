@@ -12,6 +12,10 @@
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+static inline void processScaling(GLFWwindow *window); 
+static inline void processRotation(GLFWwindow *window);
+static inline void processTranslation(GLFWwindow *window);
+
 	// camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
@@ -235,7 +239,8 @@ int main(int argc, char **argv)
 		ourShader.use();
 
 		// pass projection matrix to shader (note that in this case it could change every frame)
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 
+               (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		ourShader.setMat4("projection", projection);
 
 		// camera/view transformation
@@ -250,7 +255,16 @@ int main(int argc, char **argv)
 			// calculate the model matrix for each object and pass it to shader before drawing
 			glm::mat4 model;
 			// Translate the model to the cube starting position
-			model = glm::translate(model, cubePositions[i]);
+         // offset by the translationVec values.
+         auto translationMatrix = cubePositions[i] + glm::vec3(
+                  transformationRate::translationVec.x,
+                  transformationRate::translationVec.y,
+                  transformationRate::translationVec.z
+                  );
+
+			model = glm::translate(
+               model, 
+               translationMatrix);
 			// Rotate the cube by an angle
 			angle_x += (i+1) * deltaTime * transformationRate::rotationAngle.x;
 			angle_y += (i+1) * deltaTime * transformationRate::rotationAngle.y;
@@ -258,6 +272,11 @@ int main(int argc, char **argv)
 			model = glm::rotate(model, glm::radians(angle_x), glm::vec3(1.0f, 0.0f, 0.0f));
 			model = glm::rotate(model, glm::radians(angle_y), glm::vec3(0.0f, 1.0f, 0.0f));
 			model = glm::rotate(model, glm::radians(angle_z), glm::vec3(0.0f, 0.0f, 1.0f));
+         //scale
+         model = glm::scale(model, glm::vec3(
+                     transformationRate::scalingVec.x,
+                     transformationRate::scalingVec.y,
+                     transformationRate::scalingVec.z));
 
 			// Set model in shader
 			ourShader.setMat4("model", model);
@@ -308,6 +327,20 @@ void processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+   
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+      transformationRate::resetAll();
+   } else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ||
+              glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT)) {
+      processScaling(window);
+   } else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) ||
+              glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL)) {
+      processTranslation(window);
+   } else {
+      processRotation(window);
+   }
+
+   // camera controls are non blocked
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.ProcessKeyboard(FORWARD, deltaTime);
@@ -318,6 +351,10 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 
+	// Add other key operations here.  
+}
+
+static inline void processRotation(GLFWwindow *window) {
 	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
       transformationRate::increaseRotationRate(Direction::X);
 	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
@@ -332,10 +369,40 @@ void processInput(GLFWwindow *window)
       transformationRate::increaseRotationRate(Direction::Z);
 	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
       transformationRate::decreaseRotationRate(Direction::Z);
-
-	// Add other key operations here.  
 }
 
+static inline void processTranslation(GLFWwindow *window) {
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+      transformationRate::increaseTranslation(Direction::X);
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+      transformationRate::decreaseTranslation(Direction::X);
+
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+      transformationRate::increaseTranslation(Direction::Y);
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+      transformationRate::decreaseTranslation(Direction::Y);
+
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+      transformationRate::increaseTranslation(Direction::Z);
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+      transformationRate::decreaseTranslation(Direction::Z);
+}
+static inline void processScaling(GLFWwindow *window) {
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+      transformationRate::increaseScaling(Direction::X);
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+      transformationRate::decreaseScaling(Direction::X);
+
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+      transformationRate::increaseScaling(Direction::Y);
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+      transformationRate::decreaseScaling(Direction::Y);
+
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+      transformationRate::increaseScaling(Direction::Z);
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+      transformationRate::decreaseScaling(Direction::Z);
+}
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
