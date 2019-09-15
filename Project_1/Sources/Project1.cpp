@@ -318,21 +318,13 @@ int main(int argc, char **argv)
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-		// Bind new textures to boh texture positions (do both since it has 2 textures in the vertex shader)
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, front_texture);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, front_texture);
 
 
 		// Make the model for one wall and shift/scale it
-		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(100.0f, 100.0f, 100.0f));
+		skybox::makeSurrounding(ourShader);
+      
 
 		// Set model in shader
-		ourShader.setMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Draw the heightmap (defined in heightmap.hpp)  Similar to above but you have to write it.
 		//heightmap.Draw(ourShader, box_texture);
@@ -354,6 +346,23 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+static inline void skybox::makeSurrounding(Shader& ourShader) {
+   ssize_t counter = 0;
+   for (auto facePath : skybox::faces) {
+      glm::mat4 model;
+	   // Bind new textures to boh texture positions (do both since it has 2 textures in the vertex shader)
+	   glActiveTexture(GL_TEXTURE0);
+	   glBindTexture(GL_TEXTURE_2D, loadTexture(facePath.c_str()));
+	   glActiveTexture(GL_TEXTURE1);
+	   glBindTexture(GL_TEXTURE_2D, loadTexture(facePath.c_str()));
+
+		model = glm::translate(model, skybox::facesLocation[counter]);
+		model = glm::scale(model, glm::vec3(100.0f, 100.0f, 100.0f));
+      ourShader.setMat4("model", model);
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      counter++;
+   }
+}
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)

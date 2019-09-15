@@ -39,13 +39,22 @@ namespace skybox {
    static const vector<std::string> faces = {
       "../Project_1/Media/skybox/right.jpg",
       "../Project_1/Media/skybox/left.jpg",
-      "../Project_1/Media/skybox/top.jpg",
-      "../Project_1/Media/skybox/bottom.jpg",
-      "../Project_1/Media/skybox/front.jpg",
-      "../Project_1/Media/skybox/back.jpg"
+//      "../Project_1/Media/skybox/top.jpg",
+//      "../Project_1/Media/skybox/bottom.jpg",
+//      "../Project_1/Media/skybox/front.jpg",
+//      "../Project_1/Media/skybox/back.jpg"
+   };
+   static const vector<glm::vec3> facesLocation = {
+      glm::vec3(1.0f, 0.0f, 0.0f),
+      glm::vec3(-100.0f, 0.0f, 0.0f),
+      glm::vec3(0.0f, 1.0f, 0.0f),
+      glm::vec3(0.0f, -1.0f, 0.0f),
+      glm::vec3(0.0f, 0.0f, 1.0f),
+      glm::vec3(0.0f, 0.0f, -1.0f)
    };
 
    static inline unsigned int load(vector<std::string> &faces);
+   static inline void makeSurrounding(Shader& ourShader);
 }
 
 
