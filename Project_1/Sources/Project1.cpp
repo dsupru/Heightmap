@@ -379,7 +379,7 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
    
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
       transformationRate::resetAll();
    } else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ||
               glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT)) {
