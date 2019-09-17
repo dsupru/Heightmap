@@ -223,7 +223,10 @@ int main(int argc, char **argv)
 
 	unsigned int box_texture = loadTexture("../Project_1/Media/textures/container.jpg");
 	unsigned int smile_texture = loadTexture("../Project_1/Media/textures/awesomeface.png");
-	unsigned int front_texture = loadTexture("../Project_1/Media/skybox/front.jpg");
+   unsigned int skyboxTexture [skybox::BoxSize];
+   for (auto i = 0; i < skybox::BoxSize; i++) {
+      skyboxTexture[i] = loadTexture(skybox::faces[i].c_str());
+   }
 
 
 	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
@@ -321,7 +324,7 @@ int main(int argc, char **argv)
 
 
 		// Make the model for one wall and shift/scale it
-		skybox::makeSurrounding(ourShader);
+		skybox::makeSurrounding(ourShader, skyboxTexture);
       
 
 		// Set model in shader
@@ -346,17 +349,23 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-static inline void skybox::makeSurrounding(Shader& ourShader) {
+static inline void skybox::makeSurrounding(Shader& ourShader, 
+      unsigned int (&texturePointers)[skybox::BoxSize]) {
    ssize_t counter = 0;
-   for (auto facePath : skybox::faces) {
+   for (auto textPointer : texturePointers) {
       glm::mat4 model;
 	   // Bind new textures to boh texture positions (do both since it has 2 textures in the vertex shader)
 	   glActiveTexture(GL_TEXTURE0);
-	   glBindTexture(GL_TEXTURE_2D, loadTexture(facePath.c_str()));
+	   glBindTexture(GL_TEXTURE_2D, textPointer);
 	   glActiveTexture(GL_TEXTURE1);
-	   glBindTexture(GL_TEXTURE_2D, loadTexture(facePath.c_str()));
+	   glBindTexture(GL_TEXTURE_2D, textPointer);
 
 		model = glm::translate(model, skybox::facesLocation[counter]);
+
+      model = glm::rotate(model, facesRotation[counter].x, glm::vec3(1.0f, 0.0f, 0.0f));
+      model = glm::rotate(model, facesRotation[counter].y, glm::vec3(0.0f, 1.0f, 0.0f));
+      model = glm::rotate(model, facesRotation[counter].z, glm::vec3(0.0f, 0.0f, 1.0f));
+
 		model = glm::scale(model, glm::vec3(100.0f, 100.0f, 100.0f));
       ourShader.setMat4("model", model);
       glDrawArrays(GL_TRIANGLES, 0, 6);
