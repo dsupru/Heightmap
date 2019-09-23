@@ -68,10 +68,10 @@ namespace skybox {
    static const vector<glm::vec3> facesRotation = {
       glm::vec3(0.0f, _PI/2, 0.0f),
       glm::vec3(0.0f, -_PI/2, 0.0f),
-      glm::vec3(_PI/2, 0.0f, 0.0f),
-      glm::vec3(-_PI/2, 0.0f, 0.0f),
+      glm::vec3(_PI/2, 0.0f, -_PI/2),
+      glm::vec3(-_PI/2, 0.0f, _PI/2),
       glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(0.0f, 0.0f, _PI/2)
+      glm::vec3(0.0f, _PI, 0.0f)
    };
 
    static inline unsigned int load(vector<std::string> &faces);

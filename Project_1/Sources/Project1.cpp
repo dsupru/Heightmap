@@ -351,7 +351,7 @@ int main(int argc, char **argv)
 
 static inline void skybox::makeSurrounding(Shader& ourShader, 
       unsigned int (&texturePointers)[skybox::BoxSize]) {
-   ssize_t counter = 0;
+   size_t counter = 0;
    for (auto textPointer : texturePointers) {
       glm::mat4 model;
 	   // Bind new textures to boh texture positions (do both since it has 2 textures in the vertex shader)
