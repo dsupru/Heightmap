@@ -15,26 +15,38 @@ namespace transformationRate {
    static void increaseRotationRate(Direction direction) {
       switch (direction){
          case (Direction::X):
-            rotationAngle.x += ROTATION_RATE;
+            if (rotationAngle.x < 8.0f) {
+               rotationAngle.x += ROTATION_RATE;
+            }
          break;
          case (Direction::Y):
-            rotationAngle.y += ROTATION_RATE;
+            if (rotationAngle.y < 8.0f) {
+               rotationAngle.y += ROTATION_RATE;
+            }
          break;
          case (Direction::Z):
-            rotationAngle.z += ROTATION_RATE;
+            if (rotationAngle.z < 8.0f) {
+               rotationAngle.z += ROTATION_RATE;
+            }
          break;
       }
    }
    static void decreaseRotationRate(Direction direction) {
       switch (direction){
          case (Direction::X):
-            rotationAngle.x -= ROTATION_RATE;
+            if (rotationAngle.x > -8.0f) {
+               rotationAngle.x -= ROTATION_RATE;
+            }
          break;
          case (Direction::Y):
-            rotationAngle.y -= ROTATION_RATE;
+            if (rotationAngle.y > -8.0f) {
+               rotationAngle.y -= ROTATION_RATE;
+            }
          break;
          case (Direction::Z):
-            rotationAngle.z -= ROTATION_RATE;
+            if (rotationAngle.z > -8.0f) {
+               rotationAngle.z -= ROTATION_RATE;
+            }
          break;
       }
    }
@@ -42,26 +54,38 @@ namespace transformationRate {
    static void increaseScaling(Direction direction) {
       switch (direction){
          case (Direction::X):
-            scalingVec.x += SCALING_RATE;
+            if (scalingVec.x < 20.0f) {
+               scalingVec.x += SCALING_RATE;
+            }
          break;
          case (Direction::Y):
-            scalingVec.y += SCALING_RATE;
+            if (scalingVec.y < 20.0f) {
+               scalingVec.y += SCALING_RATE;
+            }
          break;
          case (Direction::Z):
-            scalingVec.z += SCALING_RATE;
+            if (scalingVec.z < 20.0f) {
+               scalingVec.z += SCALING_RATE;
+            }
          break;
       }
    }
    static void decreaseScaling(Direction direction) {
       switch (direction){
          case (Direction::X):
-            scalingVec.x -= SCALING_RATE;
+            if (scalingVec.x > 0.2f) {
+               scalingVec.x -= SCALING_RATE;
+            }
          break;
          case (Direction::Y):
-            scalingVec.y -= SCALING_RATE;
+            if (scalingVec.y > 0.2f) {
+               scalingVec.y -= SCALING_RATE;
+            }
          break;
          case (Direction::Z):
-            scalingVec.z -= SCALING_RATE;
+            if (scalingVec.z > 0.2f) {
+               scalingVec.z -= SCALING_RATE;
+            }
          break;
       }
    }

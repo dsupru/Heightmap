@@ -28,19 +28,20 @@
 #include <stb_image.h>
 
 #ifndef _PI 
-#define _PI 3.1415926535897f
+#define _PI 3.14159265358979323846264338327950f
 #endif
 
 using std::vector;
 
 unsigned int  loadTexture(char const * path);
+unsigned int loadSkyboxTexture(char const * path);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
 namespace skybox {
-   const size_t BoxSize = 6;
+   const size_t BoxSize = 5;
    enum class Facing : size_t{
       Right = 0,
       Left = 1,
@@ -49,11 +50,11 @@ namespace skybox {
       Front = 4,
       Back = 5
    };
-   static const std::string faces[6] = {
+   static const std::string faces[BoxSize] = {
       "../Project_1/Media/skybox/right.jpg",
       "../Project_1/Media/skybox/left.jpg",
       "../Project_1/Media/skybox/top.jpg",
-      "../Project_1/Media/skybox/bottom.jpg",
+//      "../Project_1/Media/skybox/bottom.jpg",
       "../Project_1/Media/skybox/front.jpg",
       "../Project_1/Media/skybox/back.jpg"
    };
@@ -61,7 +62,7 @@ namespace skybox {
       glm::vec3(1.0f, 0.0f, 0.0f),
       glm::vec3(-1.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 1.0f, 0.0f),
-      glm::vec3(0.0f, -1.0f, 0.0f),
+//      glm::vec3(0.0f, -1.0f, 0.0f),
       glm::vec3(0.0f, 0.0f, 1.0f),
       glm::vec3(0.0f, 0.0f, -1.0f)
    };
@@ -69,17 +70,15 @@ namespace skybox {
       glm::vec3(0.0f, _PI/2, 0.0f),
       glm::vec3(0.0f, -_PI/2, 0.0f),
       glm::vec3(_PI/2, 0.0f, -_PI/2),
-      glm::vec3(-_PI/2, 0.0f, _PI/2),
+//      glm::vec3(-_PI/2, 0.0f, _PI/2),
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, _PI, 0.0f)
    };
 
    static inline unsigned int load(vector<std::string> &faces);
    static inline void makeSurrounding(Shader& ourShader, 
-         unsigned int (&texturePointers)[skybox::BoxSize]);
+         unsigned int (&texturePointers)[skybox::BoxSize],
+         Camera& camera);
 }
-
-
-
 
 

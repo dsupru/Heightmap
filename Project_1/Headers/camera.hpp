@@ -111,6 +111,13 @@ public:
 			Zoom = 45.0f;
 	}
 
+   inline void accelerate() {
+      this->MovementSpeed = 6.0f;
+   }
+   inline void resetSpeed() {
+      this->MovementSpeed = 2.5f;
+   }
+
 private:
 	// Calculates the front vector from the Camera's (updated) Eular Angles
 	void updateCameraVectors()

@@ -36,39 +36,6 @@ std::string preamble =
 "\tControl+Key will alter translation\n "
 "Pressing G will reset transformations\n ";
 
-/* 
- * function load is taken from learnopengl.com
- */
-static inline unsigned int skybox::load(vector<std::string> &faces) {
-   unsigned int textureID;
-   glGenTextures(1, &textureID);
-   glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-   
-   int width, height, nrChannels;
-   for (unsigned int i = 0; i < faces.size(); i++)
-   {
-       unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-       if (data)
-       {
-           glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
-                        0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
-           );
-           stbi_image_free(data);
-       }
-       else
-       {
-           std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-           stbi_image_free(data);
-       }
-   }
-   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-   
-   return textureID;
-}
 int main(int argc, char **argv)
 {
 	// glfw: initialize and configure
@@ -223,9 +190,11 @@ int main(int argc, char **argv)
 
 	unsigned int box_texture = loadTexture("../Project_1/Media/textures/container.jpg");
 	unsigned int smile_texture = loadTexture("../Project_1/Media/textures/awesomeface.png");
+   unsigned int bottom_texture = loadTexture("../Project_1/Media/skybox/bottom.jpg");
    unsigned int skyboxTexture [skybox::BoxSize];
+
    for (auto i = 0; i < skybox::BoxSize; i++) {
-      skyboxTexture[i] = loadTexture(skybox::faces[i].c_str());
+      skyboxTexture[i] = loadSkyboxTexture(skybox::faces[i].c_str());
    }
 
 
@@ -321,16 +290,10 @@ int main(int argc, char **argv)
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-
-
-		// Make the model for one wall and shift/scale it
-		skybox::makeSurrounding(ourShader, skyboxTexture);
-      
-
-		// Set model in shader
+		skybox::makeSurrounding(ourShader, skyboxTexture, camera);
 
 		// Draw the heightmap (defined in heightmap.hpp)  Similar to above but you have to write it.
-		//heightmap.Draw(ourShader, box_texture);
+      heightmap.Draw(ourShader, bottom_texture);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
@@ -350,7 +313,8 @@ int main(int argc, char **argv)
 }
 
 static inline void skybox::makeSurrounding(Shader& ourShader, 
-      unsigned int (&texturePointers)[skybox::BoxSize]) {
+      unsigned int (&texturePointers)[skybox::BoxSize],
+      Camera& camera) {
    size_t counter = 0;
    for (auto textPointer : texturePointers) {
       glm::mat4 model;
@@ -384,10 +348,12 @@ void processInput(GLFWwindow *window)
    } else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ||
               glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT)) {
       processScaling(window);
-   } else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) ||
+      camera.accelerate();
+   }else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) ||
               glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL)) {
       processTranslation(window);
    } else {
+      camera.resetSpeed();
       processRotation(window);
    }
 
@@ -520,6 +486,44 @@ unsigned int loadTexture(char const * path)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+	{
+		std::cout << "Texture failed to load at path: " << path << std::endl;
+		stbi_image_free(data);
+	}
+
+	return textureID;
+}
+
+
+unsigned int loadSkyboxTexture(char const * path)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, nrComponents;
+	unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+	if (data)
+	{
+		GLenum format;
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else if (nrComponents == 4)
+			format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 		stbi_image_free(data);
 	}
