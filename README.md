@@ -1,6 +1,7 @@
 ## Summary
 
 Project Heightmap. The purpose is to work with 3d transformations in OpenGL. 
+<img src="./heightmap_image.png">
 
 ## Installation and Execution
 Create a build folder in the project directory.
