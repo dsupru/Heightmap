@@ -1,7 +1,7 @@
 /*
 	Project 1 Submission for CMPSC458
-   Name: Dmytro Suprun
-	psu id: dxs427
+    Name: Joe Smith
+	psu id: xyz123
 */
 
 #include <Project1.hpp>
@@ -11,6 +11,10 @@
 	// settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+
+static inline void processScaling(GLFWwindow *window); 
+static inline void processRotation(GLFWwindow *window);
+static inline void processTranslation(GLFWwindow *window);
 
 	// camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -22,8 +26,6 @@ bool firstMouse = true;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-inline void rotateCubes(Shader &ourShader, glm::vec3 cubePositions[], float rotateByDeltaTime);
 
 std::string preamble =
 "Project 1 code \n\n"
@@ -69,7 +71,6 @@ int main(int argc, char **argv)
 
 	// tell GLFW to capture our mouse
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-   glfwSetKeyCallback(window, keyboard_callback);
 
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -189,7 +190,12 @@ int main(int argc, char **argv)
 
 	unsigned int box_texture = loadTexture("../Project_1/Media/textures/container.jpg");
 	unsigned int smile_texture = loadTexture("../Project_1/Media/textures/awesomeface.png");
-	unsigned int front_texture = loadTexture("../Project_1/Media/skybox/front.jpg");
+   unsigned int bottom_texture = loadTexture("../Project_1/Media/skybox/bottom.jpg");
+   unsigned int skyboxTexture [skybox::BoxSize];
+
+   for (auto i = 0; i < skybox::BoxSize; i++) {
+      skyboxTexture[i] = loadSkyboxTexture(skybox::faces[i].c_str());
+   }
 
 
 	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
@@ -203,8 +209,9 @@ int main(int argc, char **argv)
 	// init heightmap (defined in heightmap.hpp)
 	Heightmap heightmap("../Project_1/Media/heightmaps/hflab4.jpg");
 	
-	
-
+	float angle_x = 0;
+   float angle_y = 0;
+   float angle_z = 0;
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -216,7 +223,8 @@ int main(int argc, char **argv)
 		lastFrame = currentFrame;
 
 		// input
-      // processed with callbacks
+		// -----
+		processInput(window);
 
 		// render
 		// ------
@@ -236,7 +244,8 @@ int main(int argc, char **argv)
 		ourShader.use();
 
 		// pass projection matrix to shader (note that in this case it could change every frame)
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 
+               (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		ourShader.setMat4("projection", projection);
 
 		// camera/view transformation
@@ -246,34 +255,50 @@ int main(int argc, char **argv)
 		
 		// render boxes
 		glBindVertexArray(VAO);
-      rotateCubes(ourShader, cubePositions, currentFrame);
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			// calculate the model matrix for each object and pass it to shader before drawing
+			glm::mat4 model;
+			// Translate the model to the cube starting position
+         // offset by the translationVec values.
+         auto translationMatrix = cubePositions[i] + glm::vec3(
+                  transformationRate::translationVec.x,
+                  transformationRate::translationVec.y,
+                  transformationRate::translationVec.z
+                  );
 
-		// Bind new textures to boh texture positions (do both since it has 2 textures in the vertex shader)
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, front_texture);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, front_texture);
+			model = glm::translate(
+               model, 
+               translationMatrix);
+			// Rotate the cube by an angle
+			angle_x += (i+1) * deltaTime * transformationRate::rotationAngle.x;
+			angle_y += (i+1) * deltaTime * transformationRate::rotationAngle.y;
+			angle_z += (i+1) * deltaTime * transformationRate::rotationAngle.z;
+			model = glm::rotate(model, glm::radians(angle_x), glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, glm::radians(angle_y), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::rotate(model, glm::radians(angle_z), glm::vec3(0.0f, 0.0f, 1.0f));
+         //scale
+         model = glm::scale(model, glm::vec3(
+                     transformationRate::scalingVec.x,
+                     transformationRate::scalingVec.y,
+                     transformationRate::scalingVec.z));
 
+			// Set model in shader
+			ourShader.setMat4("model", model);
 
-		// Make the model for one wall and shift/scale it
-		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(100.0f, 100.0f, 100.0f));
+			// Draw the box with triangles
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
-		// Set model in shader
-		ourShader.setMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		skybox::makeSurrounding(ourShader, skyboxTexture, camera);
 
 		// Draw the heightmap (defined in heightmap.hpp)  Similar to above but you have to write it.
-		//heightmap.Draw(ourShader, box_texture);
+      heightmap.Draw(ourShader, bottom_texture);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
-		glfwPollEvents();
-      if (camera.updateState){ 
-         (camera.*(camera.updateState))(deltaTime);
-      }
 		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 
 	// optional: de-allocate all resources once they've outlived their purpose:
@@ -287,54 +312,114 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-inline void rotateCubes(Shader &ourShader, glm::vec3 cubePositions[], float rotateByDeltaTime) {
-	for (unsigned int i = 0; i < 10; i++) {
-		// calculate the model matrix for each object and pass it to shader before drawing
-		glm::mat4 model;
-		// Translate the model to the cube starting position
-		model = glm::translate(model, cubePositions[i]);
-		// Rotate the cube by an angle
-		float angle = transformationRate::rotation * rotateByDeltaTime;
-		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
+static inline void skybox::makeSurrounding(Shader& ourShader, 
+      unsigned int (&texturePointers)[skybox::BoxSize],
+      Camera& camera) {
+   size_t counter = 0;
+   for (auto textPointer : texturePointers) {
+      glm::mat4 model;
+	   // Bind new textures to boh texture positions (do both since it has 2 textures in the vertex shader)
+	   glActiveTexture(GL_TEXTURE0);
+	   glBindTexture(GL_TEXTURE_2D, textPointer);
+	   glActiveTexture(GL_TEXTURE1);
+	   glBindTexture(GL_TEXTURE_2D, textPointer);
 
-		// Set model in shader
-		ourShader.setMat4("model", model);
+		model = glm::translate(model, skybox::facesLocation[counter]);
 
-		// Draw the box with triangles
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+      model = glm::rotate(model, facesRotation[counter].x, glm::vec3(1.0f, 0.0f, 0.0f));
+      model = glm::rotate(model, facesRotation[counter].y, glm::vec3(0.0f, 1.0f, 0.0f));
+      model = glm::rotate(model, facesRotation[counter].z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+		model = glm::scale(model, glm::vec3(100.0f, 100.0f, 100.0f));
+      ourShader.setMat4("model", model);
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      counter++;
    }
 }
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-   if (action == GLFW_PRESS) {
-      switch (key){
-         case GLFW_KEY_Q:
-         case GLFW_KEY_ESCAPE:
-            glfwSetWindowShouldClose(window, true);
-         break;
-         case GLFW_KEY_W:
-            camera.ProcessKeyboard(FORWARD, deltaTime);
-         break;
-         case GLFW_KEY_S:
-            camera.ProcessKeyboard(BACKWARD, deltaTime);
-         break;
-         case GLFW_KEY_A:
-            camera.ProcessKeyboard(LEFT, deltaTime);
-         break;
-         case GLFW_KEY_D:
-            camera.ProcessKeyboard(RIGHT, deltaTime);
-         break;
-         // inputs to modify objects
-         case GLFW_KEY_U:
-            transformationRate::increaseRotationRate();
-         break;
-      }
-   } else if (action == GLFW_RELEASE) {
-      camera.updateState = nullptr;
+void processInput(GLFWwindow *window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+   
+	if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+      transformationRate::resetAll();
+   } else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ||
+              glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT)) {
+      processScaling(window);
+      camera.accelerate();
+   }else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) ||
+              glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL)) {
+      processTranslation(window);
+   } else {
+      camera.resetSpeed();
+      processRotation(window);
    }
+
+   // camera controls are non blocked
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.ProcessKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.ProcessKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.ProcessKeyboard(RIGHT, deltaTime);
+
+	// Add other key operations here.  
 }
 
+static inline void processRotation(GLFWwindow *window) {
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+      transformationRate::increaseRotationRate(Direction::X);
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+      transformationRate::decreaseRotationRate(Direction::X);
+
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+      transformationRate::increaseRotationRate(Direction::Y);
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+      transformationRate::decreaseRotationRate(Direction::Y);
+
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+      transformationRate::increaseRotationRate(Direction::Z);
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+      transformationRate::decreaseRotationRate(Direction::Z);
+}
+
+static inline void processTranslation(GLFWwindow *window) {
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+      transformationRate::increaseTranslation(Direction::X);
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+      transformationRate::decreaseTranslation(Direction::X);
+
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+      transformationRate::increaseTranslation(Direction::Y);
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+      transformationRate::decreaseTranslation(Direction::Y);
+
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+      transformationRate::increaseTranslation(Direction::Z);
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+      transformationRate::decreaseTranslation(Direction::Z);
+}
+static inline void processScaling(GLFWwindow *window) {
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+      transformationRate::increaseScaling(Direction::X);
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+      transformationRate::decreaseScaling(Direction::X);
+
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+      transformationRate::increaseScaling(Direction::Y);
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+      transformationRate::decreaseScaling(Direction::Y);
+
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+      transformationRate::increaseScaling(Direction::Z);
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+      transformationRate::decreaseScaling(Direction::Z);
+}
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -401,6 +486,44 @@ unsigned int loadTexture(char const * path)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+	{
+		std::cout << "Texture failed to load at path: " << path << std::endl;
+		stbi_image_free(data);
+	}
+
+	return textureID;
+}
+
+
+unsigned int loadSkyboxTexture(char const * path)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, nrComponents;
+	unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+	if (data)
+	{
+		GLenum format;
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else if (nrComponents == 4)
+			format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 		stbi_image_free(data);
 	}

@@ -18,9 +18,9 @@ enum Camera_Movement {
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.5f;
 const float SENSITIVTY = 0.1f;
 const float ZOOM = 45.0f;
+const float Speed = 2.5f;
 
 
 // An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
@@ -44,19 +44,17 @@ public:
    void (Camera::*updateState)(float) = nullptr;
 
 	// Constructor with vectors
-	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), 
+         float speed = 2.5f,
+         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), 
+         float yaw = YAW, 
+         float pitch = PITCH) 
+      : Front(glm::vec3(0.0f, 0.0f, -1.0f)), 
+      MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
 	{
+      MovementSpeed = speed;
 		Position = position;
 		WorldUp = up;
-		Yaw = yaw;
-		Pitch = pitch;
-		updateCameraVectors();
-	}
-	// Constructor with scalar values
-	Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
-	{
-		Position = glm::vec3(posX, posY, posZ);
-		WorldUp = glm::vec3(upX, upY, upZ);
 		Yaw = yaw;
 		Pitch = pitch;
 		updateCameraVectors();
@@ -136,6 +134,13 @@ public:
 		if (Zoom >= 45.0f)
 			Zoom = 45.0f;
 	}
+
+   inline void accelerate() {
+      this->MovementSpeed = 6.0f;
+   }
+   inline void resetSpeed() {
+      this->MovementSpeed = 2.5f;
+   }
 
 private:
 	// Calculates the front vector from the Camera's (updated) Eular Angles
