@@ -13,10 +13,10 @@ From build directory, run:
 `./Heightmap/Heightmap`
 
 ## Usage
-Press the **U,I,O** to increase transformations
-Press the **J,K,L** to decrease transformations
-	Key alone will alter rotation rate
- 	Shift+Key will alter scale
- 	Control+Key will alter translation
- Pressing **G** will reset transformations
+Press the **U,I,O** to increase transformations.  
+Press the **J,K,L** to decrease transformations.  
+*Key alone will alter rotation rate.  
+ 	Shift+Key will alter scale.  
+ 	Control+Key will alter translation*.  
+ Pressing **G** will reset transformations.  
  
