@@ -40,8 +40,6 @@ public:
 	float MovementSpeed;
 	float MouseSensitivity;
 	float Zoom;
-   // Next state function pointer
-   void (Camera::*updateState)(float) = nullptr;
 
 	// Constructor with vectors
 	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), 
@@ -66,40 +64,18 @@ public:
 		return glm::lookAt(Position, Position + Front, Up);
 	}
 
-   inline void moveForward(float deltaTime) {
-		float velocity = MovementSpeed * deltaTime;
-      this->Position += Front * velocity;
-   }
-   inline void moveBackward(float deltaTime) {
-		float velocity = MovementSpeed * deltaTime;
-      this->Position -= Front * velocity;
-   }
-   inline void moveLeft(float deltaTime) {
-		float velocity = MovementSpeed * deltaTime;
-      this->Position -= Right * velocity;
-   }
-   inline void moveRight(float deltaTime) {
-		float velocity = MovementSpeed * deltaTime;
-      this->Position += Right * velocity;
-   }
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 	void ProcessKeyboard(Camera_Movement direction, float deltaTime)
 	{
 		float velocity = MovementSpeed * deltaTime;
-      switch(direction) {
-         case FORWARD:
-            updateState = &Camera::moveForward;
-            break;
-         case BACKWARD:
-            updateState = &Camera::moveBackward;
-            break;
-         case LEFT:
-            updateState = &Camera::moveLeft;
-            break;
-         case RIGHT:
-            updateState = &Camera::moveRight;
-            break;
-      }
+		if (direction == FORWARD)
+			Position += Front * velocity;
+		if (direction == BACKWARD)
+			Position -= Front * velocity;
+		if (direction == LEFT)
+			Position -= Right * velocity;
+		if (direction == RIGHT)
+			Position += Right * velocity;
 	}
 
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
