@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 
 	// build and compile our shader program (defined in shader.hpp)
 	// ------------------------------------
-	Shader ourShader("../Project_1/Shaders/shader.vert", "../Project_1/Shaders/shader.frag");
+	Shader ourShader("../Heightmap/Shaders/shader.vert", "../Heightmap/Shaders/shader.frag");
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes for boxes
 	// ------------------------------------------------------------------
@@ -188,9 +188,9 @@ int main(int argc, char **argv)
 	glEnableVertexAttribArray(1);
 
 
-	unsigned int box_texture = loadTexture("../Project_1/Media/textures/container.jpg");
-	unsigned int smile_texture = loadTexture("../Project_1/Media/textures/awesomeface.png");
-   unsigned int bottom_texture = loadTexture("../Project_1/Media/skybox/bottom.jpg");
+	unsigned int box_texture = loadTexture("../Heightmap/Media/textures/container.jpg");
+	unsigned int smile_texture = loadTexture("../Heightmap/Media/textures/awesomeface.png");
+   unsigned int bottom_texture = loadTexture("../Heightmap/Media/skybox/bottom.jpg");
    unsigned int skyboxTexture [skybox::BoxSize];
 
    for (auto i = 0; i < skybox::BoxSize; i++) {
@@ -207,7 +207,7 @@ int main(int argc, char **argv)
 	ourShader.setInt("texture2", 1);
 
 	// init heightmap (defined in heightmap.hpp)
-	Heightmap heightmap("../Project_1/Media/heightmaps/hflab4.jpg");
+	Heightmap heightmap("../Heightmap/Media/heightmaps/hflab4.jpg");
 	
 	float angle_x = 0;
    float angle_y = 0;

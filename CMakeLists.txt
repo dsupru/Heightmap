@@ -28,7 +28,7 @@ set(DCMAKE_BUILD_TYPE
        release)
 
 set(PROJECTS
-    Project_1
+   Heightmap
 )
 
 include_directories(Vendor/assimp/include/

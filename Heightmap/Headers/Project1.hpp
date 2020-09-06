@@ -51,12 +51,12 @@ namespace skybox {
       Back = 5
    };
    static const std::string faces[BoxSize] = {
-      "../Project_1/Media/skybox/right.jpg",
-      "../Project_1/Media/skybox/left.jpg",
-      "../Project_1/Media/skybox/top.jpg",
-//      "../Project_1/Media/skybox/bottom.jpg",
-      "../Project_1/Media/skybox/front.jpg",
-      "../Project_1/Media/skybox/back.jpg"
+      "../Heightmap/Media/skybox/right.jpg",
+      "../Heightmap/Media/skybox/left.jpg",
+      "../Heightmap/Media/skybox/top.jpg",
+//      "../Heightmap/Media/skybox/bottom.jpg",
+      "../Heightmap/Media/skybox/front.jpg",
+      "../Heightmap/Media/skybox/back.jpg"
    };
    static const vector<glm::vec3> facesLocation = {
       glm::vec3(1.0f, 0.0f, 0.0f),
