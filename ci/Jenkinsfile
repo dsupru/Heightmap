@@ -5,7 +5,7 @@ pipeline {
          stage('Build') {
             steps {
                sh """
-                  mkdir build
+                  mkdir build || true
                   cd build
                   cmake ..
                   make -j4
